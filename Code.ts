@@ -7,38 +7,23 @@ const options = {
         'X-API-KEY': 'FsSIxImXMWLT2F0rubei'
     }
 };
-function getBackofficeData() {
 
+function getBackofficeData() {
     //@ts-ignore
     const response = UrlFetchApp.fetch('https://backoffice-test.zooza.app/bo-v2/looker/companies', options);
     const ApiResult = JSON.parse(response.getContentText());
-    return ApiResult;
-}
+    return ApiResult.map(item => ({
+        ...item,
+        date:Utilities.formatDate(new Date(item.date), Session.getScriptTimeZone(), "YYYYMM")
 
+    }));
+}
 
 function getFields() {
     const fields = cc.getFields();
     // @ts-ignore
     const response = UrlFetchApp.fetch('https://backoffice-test.zooza.app/bo-v2/looker/companies/schema', options);
     const sampleData = JSON.parse(response.getContentText());
-    // {
-    //     "company_id": "number",
-    //     "company_name": "string",
-    //     "registrations": "number",
-    //     "orders": "number",
-    //     "schedules": "number",
-    //     "attendance": "number",
-    //     "attendance_attended": "number",
-    //     "active_schedules": "number",
-    //     "incomes": "number",
-    //     "online_income": "number",
-    //     "transactions": "number",
-    //     "online_transactions": "number",
-    //     "emails_sent": "number",
-    //     "widgets_visits": "number",
-    //     "events": "number",
-    //     "date": "date"
-    // }
 
     for (const [key, type] of Object.entries(sampleData)) {
         switch (type) {
@@ -58,10 +43,14 @@ function getFields() {
                 fields.newDimension()
                     .setId(key)
                     .setName(key)
-                    .setType(cc.FieldType.YEAR_MONTH_DAY);
+                    .setType(cc.FieldType.YEAR_MONTH);
                 break;
             default:
-                throw new Error(`Unknown type: ${type}`);
+                fields.newDimension()
+                    .setId(key)
+                    .setName(key)
+                    .setType(cc.FieldType.TEXT);
+                break;
         }
     }
 
@@ -77,10 +66,8 @@ function getSchema() {
 function getData(request) {
     const userProperties = PropertiesService.getUserProperties();
     const requestedFieldIds = request.fields.map((field) => field.name);
-
-
-        const data = getBackofficeData();
-        userProperties.setProperty('data', JSON.stringify(data));
+    const data = getBackofficeData();
+    userProperties.setProperty('data', JSON.stringify(data));
 
     Logger.log(data); // Log the data for debugging
     const Rows = data.map((item) => {
@@ -95,6 +82,7 @@ function getData(request) {
 function getConfig() {
     return cc.getConfig().build();
 }
+
 function getAuthType() {
     const authTypes = cc.AuthType;
     return cc

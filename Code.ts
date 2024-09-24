@@ -8,21 +8,62 @@ const options = {
     }
 };
 
-function getBackofficeData() {
-    //@ts-ignore
-    const response = UrlFetchApp.fetch('https://backoffice-test.zooza.app/bo-v2/looker/companies', options);
-    const ApiResult = JSON.parse(response.getContentText());
-    return ApiResult.map(item => ({
-        ...item,
-        date:Utilities.formatDate(new Date(item.date), Session.getScriptTimeZone(), "YYYYMM")
+function fetchPaginatedData(url: string, year: number, startMonth: number, endMonth: number): any[] {
+    let allData = [];
 
+    for (let month = startMonth; month <= endMonth; month++) {
+        const paginatedUrl = `${url}?year=${year}&month=${month}`;
+        try {
+            //@ts-ignore
+            const response = UrlFetchApp.fetch(paginatedUrl, options);
+            const data = JSON.parse(response.getContentText());
+            allData = allData.concat(data);
+        } catch (error) {
+            Logger.log(`Error fetching data for month ${month}: ${error}`);
+        }
+    }
+
+    return allData;
+}
+
+function getBackofficeData() {
+    const year = new Date().getFullYear();
+    const month = new Date().getMonth() + 1;
+    const startMonth = 1;
+    const url = 'https://backoffice.zooza.app/bo-v2/looker/companies';
+
+    const ApiResult = fetchPaginatedData(url, year, startMonth, month);
+    Logger.log(`Fetched data: ${JSON.stringify(ApiResult)}`);
+
+    const formattedData = ApiResult.map(item => ({
+        ...item,
+        date: item.date ? Utilities.formatDate(new Date(item.date), Session.getScriptTimeZone(), "YYYYMM") : '1970-01-01'
     }));
+    const schema = getFields();
+
+    storeDataInSheet(formattedData, schema);
+    return formattedData;
+}
+
+function storeDataInSheet(data: any[], schema: any) {
+    const sheet = SpreadsheetApp.openById('1414ivVHKEVIiUiwPy3mijltDFElU5HWmnuAM4xmU4Y8').getActiveSheet();
+    sheet.clear(); // Clear existing content
+
+    // Write headers
+    const headers = schema.asArray().map(field => field.getName());
+    sheet.appendRow(headers);
+
+    // Write data
+    data.forEach(item => {
+        const row = headers.map(header => item[header]);
+        sheet.appendRow(row);
+    });
 }
 
 function getFields() {
     const fields = cc.getFields();
     // @ts-ignore
-    const response = UrlFetchApp.fetch('https://backoffice-test.zooza.app/bo-v2/looker/companies/schema', options);
+    const response = UrlFetchApp.fetch('https://backoffice.zooza.app/bo-v2/looker/companies/schema', options);
     const sampleData = JSON.parse(response.getContentText());
 
     for (const [key, type] of Object.entries(sampleData)) {

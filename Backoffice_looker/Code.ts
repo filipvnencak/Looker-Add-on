@@ -2,8 +2,8 @@ import {CompanyReport} from "./types";
 
 const cc = DataStudioApp.createCommunityConnector();
 
-const options = {
-    method: 'GET',
+const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
+    method: 'get',
     headers: {
         'Content-Type': 'application/json',
         'X-API-KEY': 'FsSIxImXMWLT2F0rubei'
@@ -16,7 +16,7 @@ function fetchPaginatedData(url: string, year: number, startMonth: number, endMo
     for (let month = startMonth; month <= endMonth; month++) {
         const paginatedUrl = `${url}?year=${year}&month=${month}`;
         try {
-            //@ts-ignore
+
             const response = UrlFetchApp.fetch(paginatedUrl, options);
             const data = JSON.parse(response.getContentText());
             allData = allData.concat(data);
@@ -49,13 +49,13 @@ function getBackofficeData() {
 
 function storeDataInSheet(data: any[], schema: any) {
     const sheet = SpreadsheetApp.openById('1414ivVHKEVIiUiwPy3mijltDFElU5HWmnuAM4xmU4Y8').getActiveSheet();
-    sheet.clear(); // Clear existing content
+    sheet.clear();
 
-    // Write headers
+
 const headers = schema.asArray().map((field: { getName: () => string }) => field.getName());
 sheet.appendRow(headers);
 
-    // Write data
+
     data.forEach(item => {
         const row = headers.map((header: string ) => item[header]);
         sheet.appendRow(row);
@@ -64,7 +64,6 @@ sheet.appendRow(headers);
 
 function getFields() {
     const fields = cc.getFields();
-    // @ts-ignore
     const response = UrlFetchApp.fetch('https://backoffice.zooza.app/bo-v2/looker/companies/schema', options);
     const sampleData = JSON.parse(response.getContentText());
 

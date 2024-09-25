@@ -1,6 +1,6 @@
-
-const options = {
-  method: 'GET',
+/// <reference types="google-apps-script" />
+const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
+  method: 'get',
   headers: {
     'Content-Type': 'application/json',
     'X-API-KEY': 'FsSIxImXMWLT2F0rubei'
@@ -19,7 +19,7 @@ function getBackofficeData() {
     year = year-1
   }
   let url = `https://backoffice.zooza.app/bo-v2/looker/companies?year=${year}&month=${month}`;
-// @ts-ignore
+
   let response = UrlFetchApp.fetch(url, options)
 
   let ApiResult = JSON.parse(response.getContentText())
@@ -35,20 +35,17 @@ function getBackofficeData() {
   return formattedData;
 }
 
-// Function to store data in Google Sheets
 function storeDataInSheet(data) {
   let sheet = SpreadsheetApp.openById('1414ivVHKEVIiUiwPy3mijltDFElU5HWmnuAM4xmU4Y8').getActiveSheet();
 
-  // @ts-ignore
   let response = UrlFetchApp.fetch('https://backoffice.zooza.app/bo-v2/looker/companies/schema', options);
   let sampleData = JSON.parse(response.getContentText());
-  let headers = Object.keys(sampleData);  // Get headers from the schema keys
+  let headers = Object.keys(sampleData);
 
-//sheet.appendRow(headers);  // Add headers
 
-  // Write data rows
+
   data.forEach(function (item) {
-    // Add created date for each item before mapping
+
     item.created = new Date().toLocaleDateString();
 
     let row = headers.map(function (header) {

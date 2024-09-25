@@ -28,7 +28,7 @@ function fetchPaginatedData(url: string, year: number, startMonth: number, endMo
 
 function getBackofficeData() {
     const year = new Date().getFullYear();
-    const month = new Date().getMonth() + 1;
+    const month = new Date().getMonth();
     const startMonth = 1;
     const url = 'https://backoffice.zooza.app/bo-v2/looker/companies';
 
@@ -37,7 +37,7 @@ function getBackofficeData() {
 
     const formattedData = ApiResult.map(item => ({
         ...item,
-        date: item.date ? Utilities.formatDate(new Date(item.date), Session.getScriptTimeZone(), "YYYYMM") : '1970-01-01'
+        date: item.date ? Utilities.formatDate(new Date(item.date), Session.getScriptTimeZone(), "YYYY-MM") : '1970-01-01'
     }));
     const schema = getFields();
 

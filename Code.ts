@@ -1,3 +1,5 @@
+import {CompanyReport} from "./types";
+
 const cc = DataStudioApp.createCommunityConnector();
 
 const options = {
@@ -9,7 +11,7 @@ const options = {
 };
 
 function fetchPaginatedData(url: string, year: number, startMonth: number, endMonth: number): any[] {
-    let allData = [];
+    let allData: CompanyReport[] = [];
 
     for (let month = startMonth; month <= endMonth; month++) {
         const paginatedUrl = `${url}?year=${year}&month=${month}`;
@@ -50,12 +52,12 @@ function storeDataInSheet(data: any[], schema: any) {
     sheet.clear(); // Clear existing content
 
     // Write headers
-    const headers = schema.asArray().map(field => field.getName());
-    sheet.appendRow(headers);
+const headers = schema.asArray().map((field: { getName: () => string }) => field.getName());
+sheet.appendRow(headers);
 
     // Write data
     data.forEach(item => {
-        const row = headers.map(header => item[header]);
+        const row = headers.map((header: string ) => item[header]);
         sheet.appendRow(row);
     });
 }
@@ -104,15 +106,15 @@ function getSchema() {
         .build();
 }
 
-function getData(request) {
+function getData(request: any) {
     const userProperties = PropertiesService.getUserProperties();
-    const requestedFieldIds = request.fields.map((field) => field.name);
+    const requestedFieldIds = request.fields.map((field: {name:string}) => field.name);
     const data = getBackofficeData();
     userProperties.setProperty('data', JSON.stringify(data));
 
     Logger.log(data); // Log the data for debugging
     const Rows = data.map((item) => {
-        return requestedFieldIds.map((field) => item[field]);
+        return requestedFieldIds.map((field: string) => item[field]);
     });
     return cc.newGetDataResponse()
         .setFields(getFields().forIds(requestedFieldIds))

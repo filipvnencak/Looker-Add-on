@@ -31,23 +31,26 @@ async function getBackofficeData() {
 }
 function deleteActualMonthData(): void {
   let sheet = SpreadsheetApp.openById(sheetId).getActiveSheet();
-  let values = sheet.getDataRange().getValues();
+  let values = sheet.getRange("U2:U" + sheet.getLastRow()).getValues();
   const today = new Date();
-  const todayMonth = today.getMonth() + 1;
-  const todayYear = today.getFullYear();
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+
 
   for (let i = values.length - 1; i >= 0; i--) {
-    let row = values[i];
-    let dateCell = row[0]; // Assuming the date is in the first column
-    if (dateCell) { // Check if the cell contains a date
-      var cellDate = new Date(dateCell); // Convert to a Date object
+    const dateCell = values[i][0];
 
-      if (cellDate.getMonth() + 1 === todayMonth && cellDate.getFullYear() === todayYear) {
-        // If the date matches the current month and year, delete the row
-        sheet.deleteRow(i + 2); // Add 2 because i is zero-based and data starts at row 2
+    if (dateCell) {
+      const cellDate = new Date(dateCell);
+
+      if (cellDate.getMonth() === currentMonth && cellDate.getFullYear() === currentYear) {
+
+        sheet.deleteRow(i + 2);
       }
     }
   }
+
+  Logger.log('Rows from the current month have been deleted.');
 }
 
 function storeDataInSheet(data) {

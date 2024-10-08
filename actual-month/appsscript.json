@@ -1,0 +1,33 @@
+{
+  "timeZone": "Europe/Prague",
+  "dependencies": {
+    "enabledAdvancedServices": [
+      {
+        "userSymbol": "Sheets",
+        "version": "v4",
+        "serviceId": "sheets"
+      }
+    ]
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/script.external_request"
+  ],
+  "runtimeVersion": "V8",
+  "addOns": {
+    "common": {
+      "name": "Zooza sheets sync",
+      "logoUrl": "https://example.com/logo.png",
+      "layoutProperties": {
+        "primaryColor": "#4285F4",
+        "secondaryColor": "#34A853"
+      }
+    },
+    "sheets": {
+      "homepageTrigger": {
+        "runFunction": "onOpen"
+      }
+    }
+  }
+}

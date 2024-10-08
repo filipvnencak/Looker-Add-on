@@ -10,57 +10,28 @@ const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
     }
 };
 
-function fetchPaginatedData(url: string, year: number, startMonth: number, endMonth: number): any[] {
-    let allData: CompanyReport[] = [];
 
-    for (let month = startMonth; month <= endMonth; month++) {
-        const paginatedUrl = `${url}?year=${year}&month=${month}`;
-        try {
-
-            const response = UrlFetchApp.fetch(paginatedUrl, options);
-            const data = JSON.parse(response.getContentText());
-            allData = allData.concat(data);
-        } catch (error) {
-            Logger.log(`Error fetching data for month ${month}: ${error}`);
-        }
-    }
-
-    return allData;
-}
 
 function getBackofficeData() {
     const year = new Date().getFullYear();
     const month = new Date().getMonth();
     const startMonth = 1;
-    const url = 'https://backoffice.zooza.app/bo-v2/looker/companies';
+    const url = 'https://backoffice.zooza.app/bo-v2/looker/companies/last_month';
 
-    const ApiResult = fetchPaginatedData(url, year, startMonth, month);
+    const ApiResult = JSON.parse(UrlFetchApp.fetch(url, options).getContentText());
     Logger.log(`Fetched data: ${JSON.stringify(ApiResult)}`);
 
-    const formattedData = ApiResult.map(item => ({
+    const formattedData = ApiResult.map((item: any) => ({
         ...item,
         date: item.date ? Utilities.formatDate(new Date(item.date), Session.getScriptTimeZone(), "YYYY-MM") : '1970-01-01'
     }));
     const schema = getFields();
 
-    storeDataInSheet(formattedData, schema);
+
     return formattedData;
 }
 
-function storeDataInSheet(data: any[], schema: any) {
-    const sheet = SpreadsheetApp.openById('1414ivVHKEVIiUiwPy3mijltDFElU5HWmnuAM4xmU4Y8').getActiveSheet();
-    sheet.clear();
 
-
-const headers = schema.asArray().map((field: { getName: () => string }) => field.getName());
-sheet.appendRow(headers);
-
-
-    data.forEach(item => {
-        const row = headers.map((header: string ) => item[header]);
-        sheet.appendRow(row);
-    });
-}
 
 function getFields() {
     const fields = cc.getFields();
@@ -112,7 +83,7 @@ function getData(request: any) {
     userProperties.setProperty('data', JSON.stringify(data));
 
     Logger.log(data); // Log the data for debugging
-    const Rows = data.map((item) => {
+    const Rows = data.map((item:any) => {
         return requestedFieldIds.map((field: string) => item[field]);
     });
     return cc.newGetDataResponse()

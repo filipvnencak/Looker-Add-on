@@ -30,7 +30,7 @@ async function getBackofficeData() {
   return formattedData;
 }
 function deleteActualMonthData(): void {
-  let sheet = SpreadsheetApp.openById(sheetId).getActiveSheet();
+  let sheet = SpreadsheetApp.openById(sheetId).getSheetByName('monthly');
   let values = sheet.getRange("U2:U" + sheet.getLastRow()).getValues();
   const today = new Date();
   const currentMonth = today.getMonth();

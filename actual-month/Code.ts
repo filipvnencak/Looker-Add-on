@@ -24,18 +24,18 @@ async function runFetching() {
         ...item,
         date: item.date ? Utilities.formatDate(new Date(item.date), Session.getScriptTimeZone(), "yyyy-MM-dd") : '1970-01-01'
     }));
-    deleteFirstDay();
+    deleteOlderThan30Days();
     storeDataInSheet(formattedData);
     return formattedData;
 }
-function deleteFirstDay(): void {
+function deleteOlderThan30Days(): void {
     let sheet = SpreadsheetApp.openById(sheetId).getActiveSheet();
     let values = sheet.getRange("U2:U" + sheet.getLastRow()).getValues();
 
-    const first_date = new Date(Math.min.apply(null, values.map(function(e) {
-        return new Date(e[0]);
-    })));
-    Logger.log(`First date: ${first_date}`);
+    const today = new Date();
+    const date30DaysAgo = new Date();
+    date30DaysAgo.setDate(today.getDate() - 30);
+    Logger.log(`Date 30 days ago: ${date30DaysAgo}`);
 
     for (let i = values.length - 1; i >= 0; i--) {
         const dateCell = values[i][0];
@@ -43,8 +43,8 @@ function deleteFirstDay(): void {
         if (dateCell) {
             const cellDate = new Date(dateCell);
 
-            if (cellDate.getTime() === first_date.getTime()) {
-                sheet.deleteRow(i + 2);
+            if (cellDate < date30DaysAgo) {
+                sheet.deleteRow(i + 2); // Add 2 because i is zero-based and data starts at row 2
             }
         }
     }

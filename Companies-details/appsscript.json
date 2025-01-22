@@ -1,0 +1,35 @@
+{
+  "timeZone": "Europe/Prague",
+  "dependencies": {
+    "enabledAdvancedServices": [
+      {
+        "userSymbol": "Sheets",
+        "version": "v4",
+        "serviceId": "sheets"
+      }
+    ]
+  },
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/script.external_request",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/spreadsheets"
+  ],
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "dataStudio": {
+    "name": "Zooza companies details",
+    "logoUrl": "https://www.zooza.online/wp-content/uploads/2023/05/logo_zooza_small.png",
+    "company": "Zooza",
+    "companyUrl": "https://zoooza.online",
+    "description": "Fetches and visualizes zooza report data.",
+    "sources": [
+      "zooza"
+    ],
+    "addonUrl": "https://zoooza.online",
+    "supportUrl": "https://zoooza.online"
+  },
+  "webapp": {
+    "executeAs": "USER_DEPLOYING",
+    "access": "DOMAIN"
+  }
+}
